@@ -50,7 +50,7 @@ func (h *CateHandler) Store(c *gin.Context) {
 func (h *CateHandler) Fetch(c *gin.Context) {
 	// Lấy params page & page_size từ URL
 	page, _ := strconv.ParseInt(c.DefaultQuery("page", "1"), 10, 64)
-	pageSize, _ := strconv.ParseInt(c.DefaultQuery("page", "10"), 10, 64)
+	pageSize, _ := strconv.ParseInt(c.DefaultQuery("page_size", "10"), 10, 64)
 
 	categories, err := h.CateUseCase.Fetch(c.Request.Context(), page, pageSize)
 	if err != nil {
