@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS categories (
     status VARCHAR(50) DEFAULT 'Active',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE INDEX idx_name (name) -- Index để đảm bảo tên danh mục không trùng lặp
+    UNIQUE INDEX idx_title (title) -- Index để đảm bảo tên danh mục không trùng lặp
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
