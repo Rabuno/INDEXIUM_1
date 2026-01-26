@@ -44,16 +44,19 @@ func main() {
 	// Layer 1: Repository
 	// Lưu ý: Cần thêm hàm NewMysqlPostRepository vào package mysql như đã đề cập ở trên
 	postRepo := mysql.NewMysqlPostRepository(db)
+	cateRepo := mysql.NewMysqlCateRepository(db)
 
 	// Layer 2: UseCase
 	// Tiêm Repository và Timeout vào UseCase
 	postUseCase := usecase.NewPostUseCase(postRepo, timeoutContext)
+	cateUseCase := usecase.NewCateUseCase(cateRepo, timeoutContext)
 
 	// Layer 3: Delivery (HTTP Handler)
 	r := gin.Default()
 
 	// Đăng ký routes và handler
 	httphandler.NewPostHandler(r, postUseCase)
+	httphandler.NewCateHandler(r, cateUseCase)
 
 	// 4. Run Server
 	serverAddr := cfg.AppPort

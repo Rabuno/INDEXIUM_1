@@ -1,4 +1,4 @@
-USE post_db
+USE ahihi_db
 
 CREATE TABLE IF NOT EXISTS posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
