@@ -100,7 +100,7 @@ func (m *mysqlPostRepo) Update(ctx context.Context, p *domain.Post) error {
 }
 
 func (m *mysqlPostRepo) Delete(ctx context.Context, id int64) error {
-	query := `UPDATE post SET
+	query := `UPDATE posts SET
 				status = ?
 				WHERE id = ?`
 
