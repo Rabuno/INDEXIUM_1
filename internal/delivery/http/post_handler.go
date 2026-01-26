@@ -26,6 +26,7 @@ func NewPostHandler(r *gin.Engine, us domain.PostUseCase) {
 		v1.POST("/posts", handler.Store)
 		v1.GET("/posts", handler.Fetch)
 		v1.GET("/posts/:id", handler.GetByID)
+		v1.PUT("/posts/:id", handler.Update)
 		v1.DELETE("/posts/:id", handler.Delete)
 	}
 }
@@ -77,6 +78,30 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, post)
+}
+
+func (h *PostHandler) Update(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var post domain.Post
+	if err := c.ShouldBindJSON(&post); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	post.ID = id
+
+	err = h.PostUseCase.Update(c.Request.Context(), &post)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": post})
 }
 
 // Soft Delete Post
