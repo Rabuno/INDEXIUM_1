@@ -20,11 +20,11 @@ func NewCateHandler(r *gin.Engine, us domain.CategoryUseCase) {
 
 	v1 := r.Group("/api/v1")
 	{
-		v1.POST("/categories", handler.Store)
-		v1.GET("/categories", handler.Fetch)
-		v1.GET("/categories/:id", handler.GetByID)
-		v1.PUT("/categories/:id", handler.Update)
-		v1.DELETE("/categories/:id", handler.Delete)
+		v1.POST("/categories/add", handler.Store)
+		v1.GET("/categories/list", handler.Fetch)
+		v1.GET("/categories/find/:id", handler.GetByID)
+		v1.PUT("/categories/update/:id", handler.Update)
+		v1.DELETE("/categories/delete/:id", handler.Delete)
 	}
 }
 
@@ -78,7 +78,7 @@ func (h *CateHandler) GetByID(c *gin.Context) {
 func (h *CateHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID to Update"})
 		return
 	}
 

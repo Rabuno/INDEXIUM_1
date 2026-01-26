@@ -23,11 +23,11 @@ func NewPostHandler(r *gin.Engine, us domain.PostUseCase) {
 	// Group routes api/v1
 	v1 := r.Group("/api/v1")
 	{
-		v1.POST("/posts", handler.Store)
-		v1.GET("/posts", handler.Fetch)
-		v1.GET("/posts/:id", handler.GetByID)
-		v1.PUT("/posts/:id", handler.Update)
-		v1.DELETE("/posts/:id", handler.Delete)
+		v1.POST("/posts/add", handler.Store)
+		v1.GET("/posts/list", handler.Fetch)
+		v1.GET("/posts/find/:id", handler.GetByID)
+		v1.PUT("/posts/update/:id", handler.Update)
+		v1.DELETE("/posts/delete/:id", handler.Delete)
 	}
 }
 
@@ -83,7 +83,7 @@ func (h *PostHandler) GetByID(c *gin.Context) {
 func (h *PostHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID to Update"})
 		return
 	}
 
