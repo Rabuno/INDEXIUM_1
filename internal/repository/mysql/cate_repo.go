@@ -86,10 +86,10 @@ func (m *mysqlCateRepo) Store(ctx context.Context, c *domain.Category) error {
 
 func (m *mysqlCateRepo) Update(ctx context.Context, c *domain.Category) error {
 	query := `UPDATE categories SET
-				title = ?
-				description = ?
-				thumbnail = ?
-				status = ?
+				title = ?,
+				description = ?,
+				thumbnail = ?,
+				status = ?,
 				updated_at = ?
 				WHERE id = ?`
 
