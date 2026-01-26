@@ -94,7 +94,7 @@ func (m *mysqlPostRepo) Update(ctx context.Context, p *domain.Post) error {
 				update_date = ? 
 				WHERE id = ?`
 
-	_, err := m.db.ExecContext(ctx, query, p.Title, p.Description, p.Content, p.Thumbnail, p.Status, p.UpdateDate)
+	_, err := m.db.ExecContext(ctx, query, p.Title, p.Description, p.Content, p.Thumbnail, p.Status, p.UpdateDate, p.ID)
 
 	return err
 }
