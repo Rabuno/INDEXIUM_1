@@ -23,6 +23,7 @@ func NewCateHandler(r *gin.Engine, us domain.CategoryUseCase) {
 		v1.POST("/categories", handler.Store)
 		v1.GET("/categories", handler.Fetch)
 		v1.GET("/categories/:id", handler.GetByID)
+		v1.PUT("/categories/:id", handler.Update)
 		v1.DELETE("/categories/:id", handler.Delete)
 	}
 }
@@ -72,6 +73,31 @@ func (h *CateHandler) GetByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, categories)
+}
+
+func (h *CateHandler) Update(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var cate domain.Category
+	if err := c.ShouldBindJSON(&cate); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	cate.ID = id
+
+	err = h.CateUseCase.Update(c.Request.Context(), &cate)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": cate})
 }
 
 func (h *CateHandler) Delete(c *gin.Context) {
