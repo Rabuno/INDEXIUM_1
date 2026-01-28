@@ -16,7 +16,7 @@ RUN go mod download
 # Common top-level folders: cmd/, internal/, pkg/, api/, configs/, etc.
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
-COPY pkg/ ./pkg/
+COPY config/ ./config/
 
 # If you have other top-level directories, add explicit COPY for them.
 # Avoid `COPY . .` to prevent accidentally adding secrets or dev files.
@@ -27,7 +27,7 @@ ENV CGO_ENABLED=0 \
     GOARCH=amd64
 
 # Change the path to your main package if different
-RUN go build -ldflags="-s -w" -o /app/main ./cmd/server/main.go
+RUN go build -o main cmd/server/main.go
 
 # Stage 2: Runtime
 FROM alpine:3.19
@@ -36,7 +36,7 @@ RUN addgroup -S app && adduser -S -G app app
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder /app/main /usr/local/bin/main
+COPY --from=builder /src/main /usr/local/bin/main
 
 # Set ownership and make executable
 RUN chown app:app /usr/local/bin/main && chmod +x /usr/local/bin/main
