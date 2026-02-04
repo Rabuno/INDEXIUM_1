@@ -1,4 +1,4 @@
-USE ahihi_db
+USE ahihi_db;
 
 CREATE TABLE IF NOT EXISTS posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -10,5 +10,8 @@ CREATE TABLE IF NOT EXISTS posts (
     publish_date DATETIME NULL,
     update_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_status (status) -- Index để tối ưu query lọc bài đã xóa
+    
+    -- TỐI ƯU: Chỉ cần 1 index này là đủ cho cả Filter và Sort
+    -- Nó giúp MySQL: "Lọc status xong là có ngay danh sách đã sắp xếp theo ngày"
+    INDEX idx_status_created_at (status, created_at DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

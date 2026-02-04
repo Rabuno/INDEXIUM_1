@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql" // Import driver MySQL (side-effect import)
+	"github.com/zsais/go-gin-prometheus"
 
 	"Test2/config"
 	httphandler "Test2/internal/delivery/http"
@@ -53,6 +54,10 @@ func main() {
 
 	// Layer 3: Delivery (HTTP Handler)
 	r := gin.Default()
+
+	// Cấu hình để tự động tạo route /metrics
+	p := ginprometheus.NewPrometheus("gin")
+	p.Use(r)
 
 	// Đăng ký routes và handler
 	httphandler.NewPostHandler(r, postUseCase)

@@ -54,4 +54,10 @@ go.work
 .history
 .ionide
 
+### Monitor ###
+monitoring/
+monitoring-compose.yml
+prometheus.yml
+my.cnf
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,go,sonarqube,sonar
