@@ -108,3 +108,36 @@ func (m *mysqlPostRepo) Delete(ctx context.Context, id int64) error {
 
 	return err
 }
+
+func (m *mysqlPostRepo) Search(ctx context.Context, keyword string, limit int64, offset int64) ([]domain.Post, error) {
+	query := `SELECT id, title, description, content, thumbnail, status, update_date, created_at
+			  FROM posts
+			  WHERE status != ?
+			  AND (
+			  	title LIKE ?
+			  	OR description LIKE ?
+			  	OR content LIKE ?
+			  )
+			  ORDER BY created_at DESC
+			  LIMIT ? OFFSET ?`
+
+	rows, err := m.db.QueryContext(ctx, query, domain.StatusDeleted, keyword, limit, offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	result := make([]domain.Post, 0, int(limit))
+
+	for rows.Next() {
+		p := domain.Post{}
+		err := rows.Scan(&p.ID, &p.Title, &p.Description, &p.Content, &p.Thumbnail, &p.Status, &p.UpdateDate, &p.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, p)
+	}
+	return result, nil
+}

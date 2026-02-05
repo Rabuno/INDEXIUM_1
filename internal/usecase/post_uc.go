@@ -78,3 +78,18 @@ func (pu *postUseCase) Update(ctx context.Context, p *domain.Post) error {
 	p.UpdateDate = time.Now()
 	return pu.postRepo.Update(c, p)
 }
+
+func (pu *postUseCase) Search(ctx context.Context, keyword string, page int64, pageSize int64) ([]domain.Post, error) {
+	c, cancel := context.WithTimeout(ctx, pu.contextTimeout)
+	defer cancel()
+
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+
+	offset := (page - 1) * pageSize
+	return pu.postRepo.Fetch(c, pageSize, offset)
+}
