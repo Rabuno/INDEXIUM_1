@@ -43,6 +43,8 @@ type PostRepository interface {
 	Update(ctx context.Context, p *Post) error
 	// Delete thực hiện xóa mềm (Soft Delete)
 	Delete(ctx context.Context, id int64) error
+	// Search tìm kiếm bài viết theo từ khóa với phân trang
+	Search(ctx context.Context, keyword string, limit int64, offset int64) ([]Post, error)
 }
 
 // PostUseCase định nghĩa các logic nghiệp vụ (Input Port)
@@ -53,4 +55,5 @@ type PostUseCase interface {
 	Store(ctx context.Context, p *Post) error
 	Update(ctx context.Context, p *Post) error
 	Delete(ctx context.Context, id int64) error
+	Search(ctx context.Context, keyword string, page int64, pageSize int64) ([]Post, error)
 }
