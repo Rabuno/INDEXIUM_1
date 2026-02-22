@@ -7,21 +7,26 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql" // Import driver MySQL (side-effect import)
-	"github.com/zsais/go-gin-prometheus"
+	ginprometheus "github.com/zsais/go-gin-prometheus"
 
 	"Test2/config"
+	"Test2/infrastructure/redis"
 	httphandler "Test2/internal/delivery/http"
 	"Test2/internal/repository/mysql"
 	"Test2/internal/usecase"
+
+	redisRepo "Test2/internal/repository/redis"
 )
 
 func main() {
-	// 1. Load Configuration
 	// Dựa trên config.go để lấy tham số môi trường
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
+
+	// 1. Load Configuration
+	redis.InitRedis(cfg) // Khởi tạo Redis với config
 
 	// 2. Database Connection
 	// Sử dụng DSN từ config.GetDSN()
@@ -47,9 +52,12 @@ func main() {
 	postRepo := mysql.NewMysqlPostRepository(db)
 	cateRepo := mysql.NewMysqlCateRepository(db)
 
+	// Khởi tạo Cache Repository từ client toàn cục
+	postCacheRepo := redisRepo.NewRedisCacheRepository(redis.Client)
+
 	// Layer 2: UseCase
 	// Tiêm Repository và Timeout vào UseCase
-	postUseCase := usecase.NewPostUseCase(postRepo, timeoutContext)
+	postUseCase := usecase.NewPostUseCase(postRepo, postCacheRepo, timeoutContext)
 	cateUseCase := usecase.NewCateUseCase(cateRepo, timeoutContext)
 
 	// Layer 3: Delivery (HTTP Handler)

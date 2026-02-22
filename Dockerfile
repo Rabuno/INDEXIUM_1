@@ -17,6 +17,7 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 COPY config/ ./config/
+COPY infrastructure/ ./infrastructure/
 
 # If you have other top-level directories, add explicit COPY for them.
 # Avoid `COPY . .` to prevent accidentally adding secrets or dev files.
