@@ -121,7 +121,7 @@ func (m *mysqlPostRepo) Search(ctx context.Context, keyword string, limit int64,
 			  ORDER BY created_at DESC
 			  LIMIT ? OFFSET ?`
 
-	rows, err := m.db.QueryContext(ctx, query, domain.StatusDeleted, keyword, limit, offset)
+	rows, err := m.db.QueryContext(ctx, query, domain.StatusDeleted, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", limit, offset)
 
 	if err != nil {
 		return nil, err

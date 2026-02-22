@@ -28,6 +28,7 @@ func NewPostHandler(r *gin.Engine, us domain.PostUseCase) {
 		v1.GET("/posts/find/:id", handler.GetByID)
 		v1.PUT("/posts/update/:id", handler.Update)
 		v1.DELETE("/posts/delete/:id", handler.Delete)
+		v1.GET("/posts/search/:keyword", handler.Search)
 	}
 }
 
@@ -119,4 +120,19 @@ func (h *PostHandler) Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Post soft deleted successfully"})
+}
+
+// Search Posts by keyword with pagination
+func (h *PostHandler) Search(c *gin.Context) {
+	// Lấy params page & page_size từ URL
+	keyword := c.Param("keyword")
+	page, _ := strconv.ParseInt(c.DefaultQuery("page", "1"), 10, 64)
+	pageSize, _ := strconv.ParseInt(c.DefaultQuery("page_size", "10"), 10, 64)
+
+	posts, err := h.PostUseCase.Search(c.Request.Context(), keyword, page, pageSize)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": posts})
 }
