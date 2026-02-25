@@ -31,7 +31,7 @@ func NewPostUseCase(
 func (pu *postUseCase) invalidatePostListCache(ctx context.Context) {
 	// Trong hệ thống thực tế có nhiều trang, cần cơ chế xóa theo pattern (SCAN) hoặc cấu trúc Hash.
 	// Minh họa xóa cache danh sách trang 1 mặc định.
-	_ = pu.cache.Delete(ctx, "posts:list:page:1:size:10")
+	//_ = pu.cache.Delete(ctx, "posts:list:page:1:size:10")
 }
 
 // Helper: Xóa cache của một bài viết cụ thể
