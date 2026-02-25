@@ -113,15 +113,12 @@ func (m *mysqlPostRepo) Search(ctx context.Context, keyword string, limit int64,
 	query := `SELECT id, title, description, content, thumbnail, status, update_date, created_at
 			  FROM posts
 			  WHERE status != ?
-			  AND (
-			  	title LIKE ?
-			  	OR description LIKE ?
-			  	OR content LIKE ?
-			  )
+			  AND MATCH(title, description, content) AGAINST(? IN NATURAL LANGUAGE MODE)
 			  ORDER BY created_at DESC
 			  LIMIT ? OFFSET ?`
 
-	rows, err := m.db.QueryContext(ctx, query, domain.StatusDeleted, "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", limit, offset)
+	// Bỏ các ký tự "%" do MATCH AGAINST tự động phân tách token
+	rows, err := m.db.QueryContext(ctx, query, domain.StatusDeleted, keyword, limit, offset)
 
 	if err != nil {
 		return nil, err

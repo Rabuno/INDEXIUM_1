@@ -99,6 +99,19 @@ services:
     depends_on:
       - db
 
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis_exporter
+    restart: always
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    ports:
+      - "9121:9121"
+    networks:
+      - app_network
+    depends_on:
+      - redis
+
 volumes:
   db_data:
 
