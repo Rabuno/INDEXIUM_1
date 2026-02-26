@@ -117,7 +117,6 @@ func (m *mysqlPostRepo) Search(ctx context.Context, keyword string, limit int64,
 			  ORDER BY created_at DESC
 			  LIMIT ? OFFSET ?`
 
-	// Bỏ các ký tự "%" do MATCH AGAINST tự động phân tách token
 	rows, err := m.db.QueryContext(ctx, query, domain.StatusDeleted, keyword, limit, offset)
 
 	if err != nil {

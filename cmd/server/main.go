@@ -50,7 +50,7 @@ func main() {
 	// 3. Dependency Injection (Wiring Layers)
 
 	// Timeout cho context của mỗi request (được define trong UseCase)
-	timeoutContext := 2 * time.Second
+	timeoutContext := 10 * time.Second
 
 	// Layer 1: Repository
 	// Lưu ý: Cần thêm hàm NewMysqlPostRepository vào package mysql như đã đề cập ở trên

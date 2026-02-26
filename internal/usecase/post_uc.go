@@ -167,12 +167,12 @@ func (pu *postUseCase) Search(ctx context.Context, keyword string, page int64, p
 	}
 
 	cacheKey := fmt.Sprintf("posts:search:%s:page:%d:size:%d", keyword, page, pageSize)
-
 	if cachedPosts, found := pu.ristrettoCache.Get(c, cacheKey); found {
 		return cachedPosts, nil
 	}
 
 	if cachedPosts, found := pu.redisCache.Get(c, cacheKey); found {
+		_ = pu.ristrettoCache.Set(c, cacheKey, cachedPosts, 3*time.Second)
 		return cachedPosts, nil
 	}
 
