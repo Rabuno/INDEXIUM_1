@@ -25,7 +25,7 @@ func (r *ristrettoCacheRepo) Get(ctx context.Context, key string) ([]domain.Post
 }
 
 func (r *ristrettoCacheRepo) Set(ctx context.Context, key string, value []domain.Post, ttl time.Duration) error {
-	r.cache.SetWithTTL(key, value, 1, ttl) // Sử dụng chi phí cố định cho mỗi mục và TTL
+	r.cache.SetWithTTL(key, value, int64(len(value)), ttl) // Sử dụng chi phí cố định cho mỗi mục và TTL
 	return nil
 }
 
