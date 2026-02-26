@@ -10,19 +10,22 @@ import (
 
 type postUseCase struct {
 	postRepo       domain.PostRepository
-	cache          domain.CacheRepository
+	redisCache     domain.CacheRepository
+	ristrettoCache domain.CacheRepository
 	contextTimeout time.Duration
 }
 
 // NewPostUseCase khởi tạo PostUseCase với Dependency Injection
 func NewPostUseCase(
 	repo domain.PostRepository,
-	cache domain.CacheRepository,
+	redisCache domain.CacheRepository,
+	ristrettoCache domain.CacheRepository,
 	timeout time.Duration,
 ) domain.PostUseCase {
 	return &postUseCase{
 		postRepo:       repo,
-		cache:          cache,
+		redisCache:     redisCache,
+		ristrettoCache: ristrettoCache,
 		contextTimeout: timeout,
 	}
 }
@@ -37,7 +40,8 @@ func (pu *postUseCase) invalidatePostListCache(ctx context.Context) {
 // Helper: Xóa cache của một bài viết cụ thể
 func (pu *postUseCase) invalidateSinglePostCache(ctx context.Context, id int64) {
 	cacheKey := fmt.Sprintf("post:detail:%d", id)
-	_ = pu.cache.Delete(ctx, cacheKey)
+	_ = pu.redisCache.Delete(ctx, cacheKey)
+	_ = pu.ristrettoCache.Delete(ctx, cacheKey)
 }
 
 func (pu *postUseCase) Fetch(ctx context.Context, page int64, pageSize int64) ([]domain.Post, error) {
@@ -54,7 +58,11 @@ func (pu *postUseCase) Fetch(ctx context.Context, page int64, pageSize int64) ([
 	cacheKey := fmt.Sprintf("posts:list:page:%d:size:%d", page, pageSize)
 
 	// Kiểm tra Cache Hit
-	if cachedPosts, found := pu.cache.Get(c, cacheKey); found {
+	if cachedPosts, found := pu.ristrettoCache.Get(c, cacheKey); found {
+		return cachedPosts, nil
+	}
+
+	if cachedPosts, found := pu.redisCache.Get(c, cacheKey); found {
 		return cachedPosts, nil
 	}
 
@@ -66,7 +74,8 @@ func (pu *postUseCase) Fetch(ctx context.Context, page int64, pageSize int64) ([
 	}
 
 	// Ghi vào Cache với TTL = 5 phút
-	_ = pu.cache.Set(c, cacheKey, posts, 5*time.Minute)
+	_ = pu.redisCache.Set(c, cacheKey, posts, 5*time.Minute)
+	_ = pu.ristrettoCache.Set(c, cacheKey, posts, 5*time.Second)
 
 	return posts, nil
 }
@@ -114,7 +123,11 @@ func (pu *postUseCase) GetByID(ctx context.Context, id int64) (*domain.Post, err
 	cacheKey := fmt.Sprintf("post:detail:%d", id)
 
 	// Lấy mảng từ cache, giả sử phần tử đầu tiên là kết quả cần tìm
-	if cachedData, found := pu.cache.Get(c, cacheKey); found && len(cachedData) > 0 {
+	if cachedData, found := pu.ristrettoCache.Get(c, cacheKey); found && len(cachedData) > 0 {
+		return &cachedData[0], nil
+	}
+
+	if cachedData, found := pu.redisCache.Get(c, cacheKey); found && len(cachedData) > 0 {
 		return &cachedData[0], nil
 	}
 
@@ -123,7 +136,8 @@ func (pu *postUseCase) GetByID(ctx context.Context, id int64) (*domain.Post, err
 		return nil, err
 	}
 
-	_ = pu.cache.Set(c, cacheKey, []domain.Post{*post}, 10*time.Minute)
+	_ = pu.redisCache.Set(c, cacheKey, []domain.Post{*post}, 10*time.Minute)
+	_ = pu.ristrettoCache.Set(c, cacheKey, []domain.Post{*post}, 10*time.Second)
 
 	return post, nil
 }
@@ -154,7 +168,11 @@ func (pu *postUseCase) Search(ctx context.Context, keyword string, page int64, p
 
 	cacheKey := fmt.Sprintf("posts:search:%s:page:%d:size:%d", keyword, page, pageSize)
 
-	if cachedPosts, found := pu.cache.Get(c, cacheKey); found {
+	if cachedPosts, found := pu.ristrettoCache.Get(c, cacheKey); found {
+		return cachedPosts, nil
+	}
+
+	if cachedPosts, found := pu.redisCache.Get(c, cacheKey); found {
 		return cachedPosts, nil
 	}
 
@@ -164,7 +182,8 @@ func (pu *postUseCase) Search(ctx context.Context, keyword string, page int64, p
 		return nil, err
 	}
 
-	_ = pu.cache.Set(c, cacheKey, posts, 3*time.Minute)
+	_ = pu.redisCache.Set(c, cacheKey, posts, 3*time.Minute)
+	_ = pu.ristrettoCache.Set(c, cacheKey, posts, 3*time.Second)
 
 	return posts, nil
 }

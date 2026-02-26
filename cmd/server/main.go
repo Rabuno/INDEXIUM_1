@@ -11,11 +11,13 @@ import (
 
 	"Test2/config"
 	"Test2/infrastructure/redis"
+	"Test2/infrastructure/ristretto"
 	httphandler "Test2/internal/delivery/http"
 	"Test2/internal/repository/mysql"
 	"Test2/internal/usecase"
 
 	redisRepo "Test2/internal/repository/redis"
+	ristrettoRepo "Test2/internal/repository/ristretto"
 )
 
 func main() {
@@ -27,6 +29,9 @@ func main() {
 
 	// 1. Load Configuration
 	redis.InitRedis(cfg) // Khởi tạo Redis với config
+
+	ristretto.InitRistretto()     // Khởi tạo Ristretto cache
+	defer ristretto.Cache.Close() // Đảm bảo đóng cache khi ứng dụng kết thúc
 
 	// 2. Database Connection
 	// Sử dụng DSN từ config.GetDSN()
@@ -53,11 +58,12 @@ func main() {
 	cateRepo := mysql.NewMysqlCateRepository(db)
 
 	// Khởi tạo Cache Repository từ client toàn cục
-	postCacheRepo := redisRepo.NewRedisCacheRepository(redis.Client)
+	postRedisCacheRepo := redisRepo.NewRedisCacheRepository(redis.Client)
+	postRistrettoCacheRepo := ristrettoRepo.NewRistrettoCacheRepository(ristretto.Cache)
 
 	// Layer 2: UseCase
 	// Tiêm Repository và Timeout vào UseCase
-	postUseCase := usecase.NewPostUseCase(postRepo, postCacheRepo, timeoutContext)
+	postUseCase := usecase.NewPostUseCase(postRepo, postRedisCacheRepo, postRistrettoCacheRepo, timeoutContext)
 	cateUseCase := usecase.NewCateUseCase(cateRepo, timeoutContext)
 
 	// Layer 3: Delivery (HTTP Handler)
